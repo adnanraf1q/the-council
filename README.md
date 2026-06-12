@@ -47,6 +47,12 @@ ln -s ~/the-council/council ~/.claude/skills/council
 
 The symlink means `git pull` in `~/the-council` updates every project on that machine at once.
 
+> **Security note for shared/work machines:** skills are executed instructions —
+> auto-updating via symlink means whoever can push to this repo can change what
+> Claude Code does on your machine. On machines where that matters, pin instead
+> of tracking main: `git -C ~/the-council checkout <commit>` and review the diff
+> (`git log -p <pinned>..origin/main`) before moving the pin.
+
 ### Option C — restricted environments (e.g. work machines without personal GitHub auth)
 
 The skills are plain text. Copy the folder by any means available (paste the file contents, internal file share) into the target repo's `.claude/skills/`. Treat this repo as the master copy and re-sync manually when it changes.
@@ -59,7 +65,7 @@ Invoke with `/council` (or ask Claude Code to "review this app").
 
 A read-only review panel for one app/repo. It does not edit code — it produces a dated `REVIEW_<date>.md` report plus an executive summary in chat, with a verdict and the top 5 actions ranked by impact ÷ effort.
 
-**Eight consolidated roles** (merged from a 13-role panel to cut overlap and token cost while keeping coverage):
+**Eight consolidated roles** (merged from a 13-role panel to cut overlap and token cost while keeping coverage). *The table below is a summary — `council/SKILL.md` is canonical; if they ever disagree, SKILL.md wins and this table needs updating:*
 
 | Panel | Role | Looks for |
 |---|---|---|

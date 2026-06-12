@@ -10,6 +10,10 @@ edits, no refactors, no file changes outside the report itself.
 
 ## Phase 0 — Context
 
+This is a single-app review. If the working directory contains multiple
+projects (or is not the app's root), ask which app to review before reading
+anything — do not assume the current directory is the target.
+
 Read the README and any design/architecture docs first. Judge the app against
 its OWN stated goals, not an imagined ideal.
 
