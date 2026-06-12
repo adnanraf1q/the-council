@@ -1,13 +1,15 @@
-# claude-skills
+# the-council
 
-Portable, machine-agnostic skills for [Claude Code](https://claude.com/claude-code) — one shareable source of truth across machines, accounts, and teams.
+Summon a council of advisors to judge your code. Portable, machine-agnostic skills for [Claude Code](https://claude.com/claude-code) — one shareable source of truth across machines, accounts, and teams.
+
+The flagship skill convenes an eight-seat review panel — architect, security, scale, reliability, product, experience, compliance, and one critic with no filter — over any app you point it at.
 
 A *skill* is a reusable instruction set that Claude Code loads on demand. Instead of re-typing (and re-tuning) the same long prompt on every machine, you define it once here, deploy it everywhere, and invoke it with a slash command like `/app-review`.
 
 ## Repository structure
 
 ```
-claude-skills/
+the-council/
 ├── README.md                  ← you are here
 └── app-review/
     └── SKILL.md               ← the skill definition (frontmatter + instructions)
@@ -32,18 +34,18 @@ Clone this repo once and symlink skills into your user-level skills directory:
 
 ```bash
 # SSH (machines with your GitHub key):
-git clone git@github.com:adnanraf1q/claude-skills.git ~/claude-skills
+git clone git@github.com:adnanraf1q/the-council.git ~/the-council
 # or HTTPS (works anywhere; prompts for auth on private repos):
-git clone https://github.com/adnanraf1q/claude-skills.git ~/claude-skills
+git clone https://github.com/adnanraf1q/the-council.git ~/the-council
 
 mkdir -p ~/.claude/skills
-ln -s ~/claude-skills/app-review ~/.claude/skills/app-review
+ln -s ~/the-council/app-review ~/.claude/skills/app-review
 ```
 
 > Windows (no symlinks by default): copy instead of linking —
-> `xcopy /E /I claude-skills\app-review %USERPROFILE%\.claude\skills\app-review`
+> `xcopy /E /I the-council\app-review %USERPROFILE%\.claude\skills\app-review`
 
-The symlink means `git pull` in `~/claude-skills` updates every project on that machine at once.
+The symlink means `git pull` in `~/the-council` updates every project on that machine at once.
 
 ### Option C — restricted environments (e.g. work machines without personal GitHub auth)
 
