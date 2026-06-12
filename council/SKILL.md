@@ -1,5 +1,5 @@
 ---
-name: app-review
+name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
 ---
 

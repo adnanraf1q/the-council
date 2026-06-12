@@ -4,14 +4,14 @@ Summon a council of advisors to judge your code. Portable, machine-agnostic skil
 
 The flagship skill convenes an eight-seat review panel — architect, security, scale, reliability, product, experience, compliance, and one critic with no filter — over any app you point it at.
 
-A *skill* is a reusable instruction set that Claude Code loads on demand. Instead of re-typing (and re-tuning) the same long prompt on every machine, you define it once here, deploy it everywhere, and invoke it with a slash command like `/app-review`.
+A *skill* is a reusable instruction set that Claude Code loads on demand. Instead of re-typing (and re-tuning) the same long prompt on every machine, you define it once here, deploy it everywhere, and invoke it with a slash command like `/council`.
 
 ## Repository structure
 
 ```
 the-council/
 ├── README.md                  ← you are here
-└── app-review/
+└── council/
     └── SKILL.md               ← the skill definition (frontmatter + instructions)
 ```
 
@@ -24,8 +24,8 @@ Each skill is a folder containing a `SKILL.md`. The frontmatter (`name`, `descri
 Commit the skill into a project's `.claude/skills/` directory. Everyone who clones that project gets the skill automatically — no per-person setup:
 
 ```bash
-cp -r app-review <your-repo>/.claude/skills/
-cd <your-repo> && git add .claude/skills && git commit -m "Add app-review skill"
+cp -r council <your-repo>/.claude/skills/
+cd <your-repo> && git add .claude/skills && git commit -m "Add council skill"
 ```
 
 ### Option B — per-machine (all projects, just you)
@@ -39,11 +39,11 @@ git clone git@github.com:adnanraf1q/the-council.git ~/the-council
 git clone https://github.com/adnanraf1q/the-council.git ~/the-council
 
 mkdir -p ~/.claude/skills
-ln -s ~/the-council/app-review ~/.claude/skills/app-review
+ln -s ~/the-council/council ~/.claude/skills/council
 ```
 
 > Windows (no symlinks by default): copy instead of linking —
-> `xcopy /E /I the-council\app-review %USERPROFILE%\.claude\skills\app-review`
+> `xcopy /E /I the-council\council %USERPROFILE%\.claude\skills\council`
 
 The symlink means `git pull` in `~/the-council` updates every project on that machine at once.
 
@@ -53,9 +53,9 @@ The skills are plain text. Copy the folder by any means available (paste the fil
 
 ## Skill catalog
 
-### `app-review` — multi-role panel review of a single app
+### `council` — multi-role panel review of a single app
 
-Invoke with `/app-review` (or ask Claude Code to "review this app").
+Invoke with `/council` (or ask Claude Code to "review this app").
 
 A read-only review panel for one app/repo. It does not edit code — it produces a dated `REVIEW_<date>.md` report plus an executive summary in chat, with a verdict and the top 5 actions ranked by impact ÷ effort.
 
