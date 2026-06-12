@@ -31,10 +31,17 @@ cd <your-repo> && git add .claude/skills && git commit -m "Add app-review skill"
 Clone this repo once and symlink skills into your user-level skills directory:
 
 ```bash
+# SSH (machines with your GitHub key):
 git clone git@github.com:adnanraf1q/claude-skills.git ~/claude-skills
+# or HTTPS (works anywhere; prompts for auth on private repos):
+git clone https://github.com/adnanraf1q/claude-skills.git ~/claude-skills
+
 mkdir -p ~/.claude/skills
 ln -s ~/claude-skills/app-review ~/.claude/skills/app-review
 ```
+
+> Windows (no symlinks by default): copy instead of linking —
+> `xcopy /E /I claude-skills\app-review %USERPROFILE%\.claude\skills\app-review`
 
 The symlink means `git pull` in `~/claude-skills` updates every project on that machine at once.
 
