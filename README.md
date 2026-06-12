@@ -57,6 +57,10 @@ The symlink means `git pull` in `~/the-council` updates every project on that ma
 
 The skills are plain text. Copy the folder by any means available (paste the file contents, internal file share) into the target repo's `.claude/skills/`. Treat this repo as the master copy and re-sync manually when it changes.
 
+### Option D — no skill support at all
+
+[`PROMPT.md`](PROMPT.md) is a paste-anywhere standalone version of the council — same panel, same rules — for chat UIs, playgrounds, or any tool that takes a prompt but can't install skills.
+
 ## Skill catalog
 
 ### `council` — multi-role panel review of a single app
