@@ -14,8 +14,7 @@ This is a single-app review. If the working directory contains multiple
 projects (or is not the app's root), ask which app to review before reading
 anything — do not assume the current directory is the target.
 
-Read the README and any design/architecture docs first. Judge the app against
-its OWN stated goals, not an imagined ideal.
+Read the README and any design/architecture docs first. If a previous `REVIEW_*.md` file exists, read it to see if past top actions were resolved. If the user provided a specific focus area or fear, over-index on that. Judge the app against its OWN stated goals, not an imagined ideal.
 
 ## Phase 1 — Panel review
 
@@ -28,12 +27,12 @@ of roles — that don't apply, but the Critic reviews everything.
 ### Engineering panel
 
 - **Architect** — structure, coupling, dead code, duplication, whether the
-  docs still match the code.
+  docs still match the code, and CI/CD or dependency bloat.
 - **Security reviewer** — secrets in repo/configs, injection surfaces, authz
-  gaps, exposed services/endpoints, token handling. Flag hardcoded
+  gaps, exposed services/endpoints, token handling, and prompt injection/AI risks (if applicable). Flag hardcoded
   credentials explicitly.
 - **Performance, infra & scale** — hot paths, caching opportunities,
-  redundant work; and what breaks first under growth (N+1 queries, missing
+  redundant work; Cost/FinOps (inefficient resources, token bloat, 'what bankrupts you'); and what breaks first under growth (N+1 queries, missing
   indexes, unbounded queues, all-in-memory processing, single points of
   failure, per-tenant isolation under load) — name the breaking point and a
   rough threshold, not "consider caching".
@@ -47,11 +46,11 @@ of roles — that don't apply, but the Critic reviews everything.
 - **Product & market** *(merged — max 5 findings)* — is it converging on its
   stated goal? smallest next step that produces real user feedback? what
   should deliberately NOT be built? what does a competent rival do better or
-  cheaper today, and where is the moat (or state plainly that there is none)?
+  cheaper today (competitive landscape), and where is the moat (or state plainly that there is none)?
 - **Experience** *(merged — max 5 findings)* — both audiences: whoever
   operates/administers it (first-run experience, friction, error opacity)
   and the end user (where they bounce, what feels off even if they couldn't
-  name it). Includes visual/output quality where the app produces something
+  name it). Includes accessibility (a11y — WCAG, screen readers, keyboard navigation) and visual/output quality where the app produces something
   visible.
 - **Compliance reviewer** — data handling and privacy obligations, licensing,
   platform/policy exposure, secrets hygiene.

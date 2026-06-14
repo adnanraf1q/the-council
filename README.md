@@ -73,12 +73,12 @@ A read-only review panel for one app/repo. It does not edit code — it produces
 
 | Panel | Role | Looks for |
 |---|---|---|
-| Engineering | Architect | structure, coupling, dead code, doc drift |
-| Engineering | Security | secrets, injection, authz gaps, exposed surfaces |
-| Engineering | Performance, infra & scale | hot paths, caching, and **what breaks first under growth** — with a named breaking point and rough threshold |
+| Engineering | Architect | structure, coupling, dead code, doc drift, CI/CD, dependency bloat |
+| Engineering | Security | secrets, injection, authz gaps, exposed surfaces, AI safety/prompt injection |
+| Engineering | Performance, infra & scale | hot paths, caching, Cost/FinOps, and **what breaks first under growth** — with a named breaking point and rough threshold |
 | Engineering | Reliability (operator + QA) | cold-resume, failure modes, where a silent regression hides, the ONE test/gate worth adding |
-| Product | Product & market *(merged)* | convergence on stated goal, smallest step to real user feedback, competitive moat |
-| Product | Experience *(merged)* | operator journey AND end-user journey, plus output/visual quality |
+| Product | Product & market *(merged)* | convergence on stated goal, smallest step to real user feedback, competitive landscape & moat |
+| Product | Experience *(merged)* | operator journey AND end-user journey, accessibility (a11y), plus output/visual quality |
 | Product | Compliance | data handling, licensing, platform/policy exposure |
 | Product | The Critic (no filter) | one blunt paragraph saying what everyone is politely not saying |
 
