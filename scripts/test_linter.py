@@ -153,6 +153,50 @@ class TestLinter(unittest.TestCase):
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(1)
 
+    # --- README catalog sync ------------------------------------------------
+
+    def write_readme(self, role_names):
+        rows = "\n".join(f"| Engineering | {name} | looks for stuff |" for name in role_names)
+        content = (
+            "# the-council\n\n## Skill catalog\n\n"
+            "| Panel | Role | Looks for |\n|---|---|---|\n" + rows + "\n"
+        )
+        with open('README.md', 'w', encoding='utf-8') as f:
+            f.write(content)
+
+    @patch('sys.exit')
+    def test_readme_catalog_match(self, mock_exit):
+        # README abbreviates ("Security" vs "Security reviewer") but matches positionally.
+        self.write_council()
+        self.write_prompt(matching_prompt())
+        self.write_readme(["Architect", "Security", "Performance, infra & scale",
+                           "Reliability (operator + QA)", "Product & market",
+                           "Experience", "Compliance", "The Critic (no filter)"])
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(0)
+
+    @patch('sys.exit')
+    def test_readme_catalog_renamed_role(self, mock_exit):
+        # A role renamed in the README but not SKILL.md must fail.
+        self.write_council()
+        self.write_prompt(matching_prompt())
+        self.write_readme(["Architect", "Security", "Performance, infra & scale",
+                           "Reliability (operator + QA)", "Product & market",
+                           "Experience", "Compliance", "Chief Vibes Officer"])
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(1)
+
+    @patch('sys.exit')
+    def test_readme_catalog_count_mismatch(self, mock_exit):
+        # A role added to the README catalog but not SKILL.md must fail.
+        self.write_council()
+        self.write_prompt(matching_prompt())
+        self.write_readme(["Architect", "Security", "Performance, infra & scale",
+                           "Reliability (operator + QA)", "Product & market",
+                           "Experience", "Compliance", "The Critic (no filter)", "Extra Role"])
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(1)
+
     @patch('sys.exit')
     def test_plugin_missing_field(self, mock_exit):
         self.write_skill('council', 'council', 'Multi-role review')

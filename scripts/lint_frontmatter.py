@@ -31,10 +31,11 @@ def read_frontmatter(skill_path):
     return data, None
 
 
-def extract_role_descriptions(skill_content):
-    """Derive each role's description straight from SKILL.md so the linter never
-    holds a second copy of the prose. SKILL.md is the single source of truth;
-    the sync check only verifies PROMPT.md carries the SAME text."""
+def extract_roles(skill_content):
+    """Derive each role's (name, normalized description) straight from SKILL.md
+    so the linter never holds a second copy of the prose. SKILL.md is the single
+    source of truth; the sync and catalog checks only verify other files carry
+    the SAME roles."""
     content = skill_content.replace('\r\n', '\n').replace('\r', '\n')
     lines = content.split('\n')
 
@@ -69,15 +70,42 @@ def extract_role_descriptions(skill_content):
     if current is not None:
         blocks.append(current)
 
-    descriptions = []
+    roles = []
     for block in blocks:
-        # Description is everything after the first " — " (em dash) following the role name.
+        # Name is the bolded "**...**"; description is everything after the
+        # first " — " (em dash) following it.
+        name_match = re.match(r'^- \*\*(.+?)\*\*', block)
+        name = name_match.group(1).strip() if name_match else ''
         parts = re.split(r'\s—\s', block, maxsplit=1)
         desc = parts[1] if len(parts) == 2 else block
         norm = normalize(desc)
-        if norm:
-            descriptions.append(norm)
-    return descriptions
+        if name and norm:
+            roles.append((name, norm))
+    return roles
+
+
+def extract_readme_catalog_roles(readme_content):
+    """Pull the role names from the README skill-catalog table (the 'Role'
+    column). Returns [] if no such table is present."""
+    content = readme_content.replace('\r\n', '\n').replace('\r', '\n')
+    role_col = None
+    roles = []
+    for line in content.split('\n'):
+        s = line.strip()
+        if role_col is None:
+            if s.startswith('|'):
+                cells = [c.strip() for c in s.strip('|').split('|')]
+                if 'Role' in cells:
+                    role_col = cells.index('Role')
+            continue
+        if not s.startswith('|'):
+            break  # table ended
+        cells = [c.strip() for c in s.strip('|').split('|')]
+        if all(c and set(c) <= set('-: ') for c in cells):
+            continue  # the |---|---| separator row
+        if role_col < len(cells):
+            roles.append(cells[role_col])
+    return roles
 
 
 def check_prompt_sync():
@@ -98,7 +126,7 @@ def check_prompt_sync():
         with open(prompt_path, 'r', encoding='utf-8') as f:
             prompt_norm = normalize(f.read())
 
-        descriptions = extract_role_descriptions(skill_raw)
+        descriptions = [desc for _, desc in extract_roles(skill_raw)]
         if len(descriptions) < 8:
             print(f"  [ERROR] Expected 8 role descriptions in {skill_path}, found {len(descriptions)}")
             errors += 1
@@ -196,6 +224,39 @@ def check_plugin_manifest():
     return errors
 
 
+def check_readme_catalog():
+    """Guard the one drift vector tooling didn't previously cover: the README
+    skill-catalog table must list the same roles, in the same order, as
+    council/SKILL.md. Names are compared tolerantly (the README abbreviates,
+    e.g. 'Security' vs 'Security reviewer'), so this catches a role being
+    renamed, added, removed, or reordered — not the deliberate shortening."""
+    skill_path = 'council/SKILL.md'
+    readme_path = 'README.md'
+    if not (os.path.exists(skill_path) and os.path.exists(readme_path)):
+        return 0
+
+    with open(skill_path, 'r', encoding='utf-8') as f:
+        skill_names = [name for name, _ in extract_roles(f.read())]
+    with open(readme_path, 'r', encoding='utf-8') as f:
+        readme_names = extract_readme_catalog_roles(f.read())
+
+    if not readme_names:
+        return 0  # No catalog table present; nothing to keep in sync.
+
+    print("Checking README role catalog matches council/SKILL.md...")
+    errors = 0
+    if len(readme_names) != len(skill_names):
+        print(f"  [ERROR] README catalog lists {len(readme_names)} roles but SKILL.md defines {len(skill_names)}")
+        return errors + 1  # Counts differ — positional comparison is meaningless.
+
+    for skill_name, readme_name in zip(skill_names, readme_names):
+        a, b = normalize(skill_name), normalize(readme_name)
+        if a not in b and b not in a:
+            print(f"  [ERROR] README catalog role '{readme_name}' does not match SKILL.md role '{skill_name}' (same position)")
+            errors += 1
+    return errors
+
+
 def lint_skills():
     errors = 0
     # Search for all SKILL.md files
@@ -230,6 +291,7 @@ def lint_skills():
     errors += check_prompt_sync()
     errors += check_output_contract()
     errors += check_plugin_manifest()
+    errors += check_readme_catalog()
 
     if errors > 0:
         print(f"\nLint failed with {errors} errors.")

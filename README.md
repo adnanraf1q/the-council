@@ -101,7 +101,7 @@ Invoke with `/council` (or ask Claude Code to "review this app").
 
 A read-only review panel for one app/repo. It does not edit code — it produces a dated `council-reviews/REVIEW_<date>.md` report plus an executive summary in chat, with a verdict and all actions ranked by impact ÷ effort.
 
-**Eight consolidated roles** (merged from a 13-role panel to cut overlap and token cost while keeping coverage). *The table below is a summary — `council/SKILL.md` is canonical; if they ever disagree, SKILL.md wins and this table needs updating:*
+**Eight consolidated roles** (merged from a 13-role panel to cut overlap and token cost while keeping coverage). *The table below is a summary — `council/SKILL.md` is canonical; if they ever disagree, SKILL.md wins and this table needs updating. CI enforces this: the linter fails if the roles here drift from SKILL.md (renamed, added, removed, or reordered).*
 
 | Panel | Role | Looks for |
 |---|---|---|
