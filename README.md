@@ -11,11 +11,18 @@ A *skill* is a reusable instruction set that Claude Code loads on demand. Instea
 ```
 the-council/
 ├── README.md                  ← you are here
-└── council/
-    └── SKILL.md               ← the skill definition (frontmatter + instructions)
+├── PROMPT.md                  ← standalone paste-anywhere version (Option D)
+├── plugin.json                ← Antigravity CLI (agy) plugin manifest (Option E)
+├── council/
+│   └── SKILL.md               ← the skill definition (frontmatter + instructions)
+├── skills/
+│   └── council → ../council   ← symlink exposing the skill under the agy plugin layout
+├── scripts/                   ← frontmatter linter + tests (run in CI)
+├── .github/workflows/         ← CI: lints frontmatter and SKILL.md ↔ PROMPT.md sync
+└── council-reviews/           ← dated REVIEW_*.md reports land here (see Skill catalog)
 ```
 
-Each skill is a folder containing a `SKILL.md`. The frontmatter (`name`, `description`) is what Claude Code reads to decide when the skill is relevant; the body is the instruction set executed when it runs.
+Each skill is a folder containing a `SKILL.md`. The frontmatter (`name`, `description`) is what Claude Code reads to decide when the skill is relevant; the body is the instruction set executed when it runs. The same `council/SKILL.md` is the single source of truth for both install paths — Claude Code (`council/`) and the agy plugin (via the `skills/council` symlink) — so updating it updates both at once. The agy plugin's `version` in `plugin.json` is kept in sync with the `version:` in `SKILL.md`.
 
 ## Installation
 
@@ -47,19 +54,41 @@ ln -s ~/the-council/council ~/.claude/skills/council
 
 The symlink means `git pull` in `~/the-council` updates every project on that machine at once.
 
-> **Security note for shared/work machines:** skills are executed instructions —
-> auto-updating via symlink means whoever can push to this repo can change what
-> Claude Code does on your machine. On machines where that matters, pin instead
-> of tracking main: `git -C ~/the-council checkout <commit>` and review the diff
-> (`git log -p <pinned>..origin/main`) before moving the pin.
+
 
 ### Option C — restricted environments (e.g. work machines without personal GitHub auth)
 
-The skills are plain text. Copy the folder by any means available (paste the file contents, internal file share) into the target repo's `.claude/skills/`. Treat this repo as the master copy and re-sync manually when it changes.
+The skills are plain text. Copy the folder by any means available (paste the file contents, internal file share) into the target repo's `.claude/skills/`. Treat this repo as the master copy and re-sync manually when it changes. The `SKILL.md` file contains a `version:` field in its frontmatter so you can check if your copied version is stale.
 
 ### Option D — no skill support at all
 
 [`PROMPT.md`](PROMPT.md) is a paste-anywhere standalone version of the council — same panel, same rules — for chat UIs, playgrounds, or any tool that takes a prompt but can't install skills.
+
+### Option E — Antigravity CLI (agy)
+
+If you use the Antigravity CLI (`agy`), you can install the council as a plugin directly:
+
+```bash
+# Clone the repository
+git clone https://github.com/adnanraf1q/the-council.git ~/the-council
+cd ~/the-council
+
+# Install as a local plugin
+agy plugin install .
+```
+
+This will automatically load the `/council` command in your `agy` sessions.
+
+## Security & Privacy
+
+### Data Transmission & Privacy
+The council skill operates by reading the files in your target codebase and sending their contents to the AI model's API for analysis. If you are reviewing private, proprietary, or regulated codebases, please ensure that this transmission complies with your organization's data privacy policies and compliance frameworks (such as GDPR, SOC2, or HIPAA). Do not run this tool on codebases containing sensitive personal data or raw production secrets.
+
+### Supply-chain Security (Symlink Updates)
+When using Option B (symlinking the skill repository), running `git pull` will automatically update the skill for all linked projects. Because skills are executed instructions, anyone who can push to the upstream repository can modify the behavior of the slash command on your machine.
+For shared or high-security environments:
+- Clone the repository and check out a specific pinned commit: `git checkout <commit-hash>`.
+- Audit new updates using `git log -p <pinned-hash>..origin/main` before updating your pin.
 
 ## Skill catalog
 
@@ -67,7 +96,9 @@ The skills are plain text. Copy the folder by any means available (paste the fil
 
 Invoke with `/council` (or ask Claude Code to "review this app").
 
-A read-only review panel for one app/repo. It does not edit code — it produces a dated `REVIEW_<date>.md` report plus an executive summary in chat, with a verdict and the top 5 actions ranked by impact ÷ effort.
+**When to use `/council` vs the built-in `/code-review`:** Use `/code-review` and `/security-review` for day-to-day bug-hunting on individual diffs or files. Use `/council` for high-level, holistic architecture and product reviews where you want actionable strategic advice (the "Product Panel" and "The Critic").
+
+A read-only review panel for one app/repo. It does not edit code — it produces a dated `council-reviews/REVIEW_<date>.md` report plus an executive summary in chat, with a verdict and all actions ranked by impact ÷ effort.
 
 **Eight consolidated roles** (merged from a 13-role panel to cut overlap and token cost while keeping coverage). *The table below is a summary — `council/SKILL.md` is canonical; if they ever disagree, SKILL.md wins and this table needs updating:*
 
@@ -85,15 +116,13 @@ A read-only review panel for one app/repo. It does not edit code — it produces
 **Quality rules baked in** — these four constraints are what keep the output sharp instead of boilerplate:
 
 1. **Read-only** — review panel, not a fixer.
-2. **Finding caps** — max 3 per role (5 for the two merged roles); forces selectivity.
-3. **Evidence required** — every finding cites `file:line` or a concrete artifact.
-4. **No generic advice** — anything that could apply to any codebase is banned.
+2. **Evidence required** — every finding cites `file:line` or a concrete artifact.
+3. **No generic advice** — anything that could apply to any codebase is banned.
 
 **Token-cost notes** (relevant on usage-billed platforms like Amazon Bedrock):
 
 - Review a **diff or single module** day-to-day; save whole-app reviews for milestones.
 - The skill runs inline — don't add "use parallel subagents per role"; subagent fan-out is the most expensive pattern per unit of work.
-- Finding caps limit output tokens, which cost ~5× input tokens.
 
 ## Conventions
 

@@ -11,8 +11,9 @@ Review this app as a review panel, not a fixer: strictly read-only — no
 edits, no refactors. If it's unclear which app or directory to review, ask
 before reading anything.
 
-First read the README and any design/architecture docs. If a previous
-REVIEW_*.md file exists, read it to see if past top actions were resolved.
+First read the README and any design/architecture docs. If a previous report
+exists (council-reviews/REVIEW_*.md, or a legacy REVIEW_*.md in the root),
+read it to see if past top actions were resolved.
 If the user provided a specific focus area or fear, over-index on that.
 Judge the app against its OWN stated goals, not an imagined ideal.
 
@@ -46,13 +47,16 @@ PRODUCT PANEL
   visual/output quality where the app produces something visible.
 - Compliance: data handling and privacy obligations, licensing,
   platform/policy exposure, secrets hygiene.
-- The Critic (no filter): exempt from the finding cap and the diplomacy
+- The Critic (no filter): exempt from the diplomacy
   expected elsewhere — one blunt paragraph saying what everyone is politely
   not saying. Must still be specific to THIS app; cruelty without evidence
   is noise.
 
 RULES
-- Max 3 findings per role (5 for the two merged roles).
+- Each role opens with a single sarcastic, in-character one-liner before its
+  findings — one line, specific to THIS app (a sharpened version of a real
+  finding, not generic snark). It's a tone device, not a license to soften
+  findings. Keep it out of the executive summary.
 - Every finding gets severity (high/med/low), effort (quick-win <1h /
   medium / strategic), and a file:line or concrete-artifact citation.
 - No generic advice that could apply to any codebase.
@@ -60,9 +64,29 @@ RULES
   Critic reviews everything.
 
 OUTPUT
-- Verdict, plus the top 5 actions ranked by (impact ÷ effort).
-- If you can write files, write the full report to REVIEW_<YYYY-MM-DD>.md in
-  the repo root and give only the executive summary in chat; otherwise give
-  the executive summary first, then the full findings in your response.
+- Verdict, plus all actions ranked by (impact ÷ effort).
+- If you can write files, write the full report to
+  council-reviews/REVIEW_<YYYY-MM-DD>.md inside the reviewed app's root
+  (create the council-reviews/ folder if needed; never loose in the repo root)
+  and give only the executive summary in chat (letting the user know they can
+  commit the council-reviews/ folder or add it to `.gitignore` per their
+  team's preference); otherwise give the executive summary first, then the
+  full findings in your response.
 - End by asking which actions to start.
+
+FORMATTING (keep it skimmable)
+- Executive summary: verdict in one line, then an "all actions" table with
+  columns: # | Action | Sev | Effort | Why | Status. Nothing else above the
+  fold.
+- Each role is a heading; under it, the role's one-liner in italics, then its
+  findings — each as its own block, never a wall of text:
+    **HIGH · quick-win** — Short title in plain language
+    `path/to/file.ext:42` · `other/file.ext:10-18`
+    One or two sentences: what's wrong and the consequence. No preamble.
+  Severity (HIGH/MED/LOW) leads so the eye can scan it; effort follows; title
+  last. Sort findings within each role high -> low.
+- Citations are relative file:line in inline code (e.g. council/SKILL.md:22),
+  never absolute file:/// URLs — they're unreadable and break on other
+  machines.
+- Keep finding bodies to 1-2 sentences.
 ```
