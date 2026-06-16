@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.2.0
+version: 1.3.0
 ---
 
 # App Review — multi-role panel, single app
@@ -23,7 +23,10 @@ Each role opens with a single sarcastic, in-character one-liner — then gets
 to work. Keep it to one line, and make it land on something real in THIS app
 (a sharpened version of an actual finding, not generic snark); a joke that
 could apply to any codebase is as banned as advice that could. This is a
-tone device, not a license to soften findings.
+tone device, not a license to soften findings. **Opt-out:** if the user asks
+for a formal / serious / no-jokes review, or the run is clearly a high-stakes
+deliverable (regulator-, customer-, or executive-facing), drop the one-liners
+entirely — findings, severity, and structure are unchanged either way.
 
 Provide all findings for each role. Every
 finding gets severity (high/med/low), effort (quick-win <1h / medium /

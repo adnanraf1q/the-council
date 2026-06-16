@@ -42,7 +42,7 @@ PRODUCT PANEL
   plainly that there is none)?
 - Experience (merged role): both audiences — whoever operates/administers it
   (first-run experience, friction, error opacity) and the end user (where
-  they bounce, what feels off even if they couldn't name it). Include
+  they bounce, what feels off even if they couldn't name it). Includes
   accessibility (a11y — WCAG, screen readers, keyboard navigation) and
   visual/output quality where the app produces something visible.
 - Compliance: data handling and privacy obligations, licensing,
@@ -56,7 +56,10 @@ RULES
 - Each role opens with a single sarcastic, in-character one-liner before its
   findings — one line, specific to THIS app (a sharpened version of a real
   finding, not generic snark). It's a tone device, not a license to soften
-  findings. Keep it out of the executive summary.
+  findings. Keep it out of the executive summary. Opt-out: if the user asks
+  for a formal / serious / no-jokes review, or it's clearly a high-stakes
+  deliverable (regulator-, customer-, or executive-facing), drop the
+  one-liners entirely — findings and structure are unchanged.
 - Every finding gets severity (high/med/low), effort (quick-win <1h /
   medium / strategic), and a file:line or concrete-artifact citation.
 - No generic advice that could apply to any codebase.

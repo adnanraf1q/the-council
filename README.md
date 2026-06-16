@@ -73,11 +73,12 @@ If you use the Antigravity CLI (`agy`), you can install the council as a plugin 
 git clone https://github.com/adnanraf1q/the-council.git ~/the-council
 cd ~/the-council
 
-# Install as a local plugin
+# Validate the plugin layout, then install it locally
+agy plugin validate .
 agy plugin install .
 ```
 
-This will automatically load the `/council` command in your `agy` sessions.
+This loads the `council` skill (invoked with `/council`) in your `agy` sessions — the plugin exposes it via the `skills/council` symlink. CI validates the same layout on every push (`plugin.json` is well-formed and its `version` matches `council/SKILL.md`), so the agy path can't silently drift from the Claude Code path.
 
 ## Security & Privacy
 

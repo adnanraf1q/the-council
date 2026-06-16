@@ -1,4 +1,5 @@
 import os
+import json
 import shutil
 import tempfile
 import unittest
@@ -9,15 +10,50 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 import lint_frontmatter
 
+# Eight role descriptions, defined once and rendered into both files so the
+# fixtures stay in sync the same way the real repo does.
+ROLE_DESCS = [
+    "structure, coupling, dead code, and dependency bloat",
+    "secrets in repo, injection surfaces, and authz gaps",
+    "hot paths, caching opportunities, and what breaks first under growth",
+    "can someone resume this cold? failure modes and logging",
+    "is it converging on its stated goal? where is the moat",
+    "both audiences: the operator and the end user, including accessibility",
+    "data handling and privacy obligations, licensing, secrets hygiene",
+    "exempt from the diplomacy expected elsewhere: one blunt paragraph",
+]
+ROLE_NAMES = [
+    "Architect", "Security reviewer", "Performance, infra & scale",
+    "Reliability (operator + QA)", "Product & market", "Experience",
+    "Compliance reviewer", "The Critic (no filter)",
+]
+VERDICT = "Verdict, plus all actions ranked by (impact ÷ effort)."
+REPORT_LINE = "Write the full report to council-reviews/REVIEW_<date>.md."
+
+
+def council_skill_body():
+    eng = "\n".join(f"- **{ROLE_NAMES[i]}** — {ROLE_DESCS[i]}" for i in range(4))
+    prod = "\n".join(f"- **{ROLE_NAMES[i]}** *(merged)* — {ROLE_DESCS[i]}" for i in range(4, 8))
+    return (
+        "# App Review\n\n## Phase 1 — Panel review\n\n"
+        "### Engineering panel\n\n" + eng + "\n\n"
+        "### Product panel\n\n" + prod + "\n\n"
+        "## Phase 2 — Output\n\n- " + VERDICT + "\n- " + REPORT_LINE + "\n"
+    )
+
+
+def matching_prompt():
+    roles = "\n".join(f"- {ROLE_NAMES[i]}: {ROLE_DESCS[i]}" for i in range(8))
+    return roles + "\n" + VERDICT + "\n" + REPORT_LINE + "\n"
+
+
 class TestLinter(unittest.TestCase):
     def setUp(self):
-        # Create a temp directory
         self.test_dir = tempfile.mkdtemp()
         self.old_cwd = os.getcwd()
         os.chdir(self.test_dir)
-        
+
     def tearDown(self):
-        # Restore cwd and remove temp directory
         os.chdir(self.old_cwd)
         shutil.rmtree(self.test_dir)
 
@@ -26,62 +62,105 @@ class TestLinter(unittest.TestCase):
         with open(os.path.join(folder, 'SKILL.md'), 'w', encoding='utf-8') as f:
             f.write(f"---\nname: {name}\ndescription: {desc}\n---\n{body}")
 
+    def write_council(self, version=None):
+        os.makedirs('council', exist_ok=True)
+        version_line = f"version: {version}\n" if version else ""
+        with open(os.path.join('council', 'SKILL.md'), 'w', encoding='utf-8') as f:
+            f.write(f"---\nname: council\ndescription: Multi-role review\n{version_line}---\n{council_skill_body()}")
+
     def write_prompt(self, content):
         with open('PROMPT.md', 'w', encoding='utf-8') as f:
             f.write(content)
 
+    def write_plugin(self, version):
+        with open('plugin.json', 'w', encoding='utf-8') as f:
+            json.dump({"name": "the-council", "version": version, "description": "x"}, f)
+
+    def link_skill(self):
+        os.makedirs('skills', exist_ok=True)
+        try:
+            os.symlink(os.path.join('..', 'council'), os.path.join('skills', 'council'))
+        except (OSError, NotImplementedError):
+            self.skipTest("symlinks not supported on this platform")
+
+    # --- frontmatter checks -------------------------------------------------
+
     @patch('sys.exit')
     def test_valid_skill(self, mock_exit):
-        # Setup a valid skill directory structure
+        # Valid skill, no PROMPT.md/plugin.json -> cross-file checks skip cleanly.
         self.write_skill('council', 'council', 'Multi-role review')
-        
-        # We don't have PROMPT.md so sync check should skip (warning only, no failure)
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(0)
 
     @patch('sys.exit')
     def test_missing_frontmatter_name(self, mock_exit):
-        # Name is empty
         self.write_skill('council', '', 'Multi-role review')
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(1)
 
     @patch('sys.exit')
     def test_mismatched_folder_name(self, mock_exit):
-        # Folder is 'council', name is 'different'
         self.write_skill('council', 'different', 'Multi-role review')
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(1)
 
+    # --- PROMPT.md sync (derived from SKILL.md) -----------------------------
+
     @patch('sys.exit')
     def test_sync_success(self, mock_exit):
-        # Valid skill and prompt with same roles and instructions
-        roles_text = (
-            "structure, coupling, dead code, duplication, whether the docs still match the code, and CI/CD or dependency bloat. "
-            "secrets in repo/configs, injection surfaces, authz gaps, exposed services/endpoints, token handling, and prompt injection/AI risks. "
-            "hot paths, caching opportunities, redundant work; Cost/FinOps (inefficient resources, token bloat, 'what bankrupts you'); and what breaks first under growth (N+1 queries, missing indexes, unbounded queues, all-in-memory processing, single points of failure, per-tenant isolation under load) — name the breaking point and a rough threshold, not \"consider caching\". "
-            "can someone resume this cold? failure modes, logging, doc drift, onboarding time; what validates outputs today, where would a silent regression hide, which ONE test/gate would catch the most damage (name the specific risk and the specific check). "
-            "is it converging on its stated goal? smallest next step that produces real user feedback? what should deliberately NOT be built? what does a competent rival do better or cheaper today (competitive landscape), and where is the moat (or state plainly that there is none)? "
-            "both audiences: whoever operates/administers it (first-run experience, friction, error opacity) and the end user (where they bounce, what feels off even if they couldn't name it). Includes accessibility (a11y — WCAG, screen readers, keyboard navigation) and visual/output quality where the app produces something visible. "
-            "data handling and privacy obligations, licensing, platform/policy exposure, secrets hygiene. "
-            "exempt from the diplomacy expected elsewhere: one blunt paragraph saying what everyone is politely not saying. Must still be specific to THIS app — cruelty without evidence is noise. "
-            "verdict, plus all actions ranked by (impact ÷ effort)."
-        )
-        self.write_skill('council', 'council', 'Multi-role review', body=roles_text)
-        self.write_prompt(roles_text)
-        
+        self.write_council()
+        self.write_prompt(matching_prompt())
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(0)
 
     @patch('sys.exit')
     def test_sync_failure(self, mock_exit):
-        # Missing role descriptions in prompt
-        self.write_skill('council', 'council', 'Multi-role review', 
-                         body="structure, coupling, dead code, duplication, whether the docs still match the code, and CI/CD or dependency bloat. verdict, plus all actions ranked by (impact ÷ effort).")
-        self.write_prompt("Some completely different prompt text. verdict, plus all actions ranked by (impact ÷ effort).")
-        
+        # PROMPT.md drops one role's wording -> sync must fail.
+        self.write_council()
+        prompt = matching_prompt().replace(ROLE_DESCS[2], "totally different perf wording")
+        self.write_prompt(prompt)
         lint_frontmatter.lint_skills()
         mock_exit.assert_called_with(1)
+
+    # --- output contract ----------------------------------------------------
+
+    @patch('sys.exit')
+    def test_output_contract_failure(self, mock_exit):
+        # PROMPT.md loses the report destination -> contract must fail.
+        self.write_council()
+        prompt = matching_prompt().replace("council-reviews/REVIEW_<date>.md", "the repo root")
+        self.write_prompt(prompt)
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(1)
+
+    # --- plugin manifest / version sync -------------------------------------
+
+    @patch('sys.exit')
+    def test_version_match(self, mock_exit):
+        self.write_council(version="1.3.0")
+        self.write_prompt(matching_prompt())
+        self.write_plugin("1.3.0")
+        self.link_skill()
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(0)
+
+    @patch('sys.exit')
+    def test_version_drift(self, mock_exit):
+        self.write_council(version="1.3.0")
+        self.write_prompt(matching_prompt())
+        self.write_plugin("1.2.0")  # stale manifest
+        self.link_skill()
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(1)
+
+    @patch('sys.exit')
+    def test_plugin_missing_field(self, mock_exit):
+        self.write_skill('council', 'council', 'Multi-role review')
+        with open('plugin.json', 'w', encoding='utf-8') as f:
+            json.dump({"name": "the-council"}, f)  # missing version + description
+        lint_frontmatter.lint_skills()
+        mock_exit.assert_called_with(1)
+
 
 if __name__ == '__main__':
     unittest.main()
