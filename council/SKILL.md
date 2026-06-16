@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.3.0
+version: 1.4.0
 ---
 
 # App Review — multi-role panel, single app
@@ -85,22 +85,26 @@ of roles — that don't apply, but the Critic reviews everything.
 
 ### Formatting (keep the report skimmable)
 
-- **Executive summary:** verdict in one line, then the "all actions" table
-  with columns `# | Action | Sev | Effort | Why | Status`. Nothing else above
-  the fold.
-- **Each role** is a `###` heading. Under it, the role's one-liner in italics,
-  then its findings — each as its own block, never a wall of text:
+The report is read in a terminal, so optimize for scanning, not prose.
 
-  ```
-  **HIGH · quick-win** — Short title in plain language
-  `path/to/file.ext:42` · `other/file.ext:10-18`
-  One or two sentences: what's wrong and the consequence. No preamble.
-  ```
+- **Severity is an emoji** so the eye can run down the column: 🔴 high,
+  🟡 med, 🟢 low. Use it everywhere severity appears (exec table and roles).
+- **Executive summary:** verdict in one line, then the "all actions" table —
+  columns `# | Action | Sev | Effort | Why | Status`. Nothing else above the
+  fold.
+- **Each role** is a `###` heading; the role's one-liner in italics under it
+  (omit the one-liner when the tone opt-out is in effect), then a single
+  **table** of its findings — never a wall of text:
 
-  Severity (`HIGH`/`MED`/`LOW`) leads so the eye can scan it; effort follows;
-  title last. Sort findings within each role high → low.
+  | Sev | Effort | Finding | Where |
+  |:--:|---|---|---|
+  | 🔴 | quick-win | **Short title** — one short clause of consequence | `path:line` |
+  | 🟢 | — | **Short title** — consequence | `other:line` |
+
+  Sort rows high → low. Keep the Finding cell to a bold title plus one short
+  clause so it doesn't wrap in a narrow terminal — detail that doesn't fit
+  belongs in the fix, not the report.
+- **The Critic** stays one blunt prose paragraph — no table.
 - **Citations are relative `file:line`** in inline code (e.g.
   `council/SKILL.md:22`) — never absolute `file:///…` URLs; they're unreadable
   and break on other machines.
-- Keep finding bodies to 1–2 sentences. Detail that doesn't fit belongs in the
-  fix, not the report.
