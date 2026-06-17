@@ -26,7 +26,10 @@ ENGINEERING PANEL
   services/endpoints, token handling, and prompt injection/AI risks (if
   applicable). Flag hardcoded credentials explicitly. Hunt actual exploitable
   holes, not just categories — OWASP Top 10 classes (XSS, CSRF, SSRF, IDOR,
-  auth bypass) and known-CVE or outdated dependencies.
+  auth bypass) and known-CVE or outdated dependencies. Also: missing rate
+  limiting / abuse throttling on public endpoints (unrestricted resource
+  consumption), and data-layer authorization — row-level / per-tenant
+  isolation, not just a route-level login check.
 - Performance, infra & scale: hot paths, caching opportunities, redundant
   work; Cost/FinOps (inefficient resources, token bloat, 'what bankrupts
   you'); and what breaks first under growth (N+1 queries, missing indexes,
@@ -36,7 +39,9 @@ ENGINEERING PANEL
 - Reliability (operator + QA): can someone resume this cold? failure modes,
   logging, doc drift, onboarding time; what validates outputs today, where
   would a silent regression hide, which ONE test/gate would catch the most
-  damage (name the specific risk and the specific check).
+  damage (name the specific risk and the specific check). Beyond the happy
+  path: are external failures (third-party timeouts, failed writes) handled,
+  or do they fail silently?
 
 PRODUCT PANEL
 - Product & market (merged role): is it converging on its stated goal?

@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.5.0
+version: 1.6.0
 ---
 
 # App Review — multi-role panel, single app
@@ -44,7 +44,10 @@ of roles — that don't apply, but the Critic reviews everything.
   gaps, exposed services/endpoints, token handling, and prompt injection/AI risks (if applicable). Flag hardcoded
   credentials explicitly. Hunt actual exploitable holes, not just categories —
   OWASP Top 10 classes (XSS, CSRF, SSRF, IDOR, auth bypass) and known-CVE or
-  outdated dependencies.
+  outdated dependencies. Also: missing rate limiting / abuse throttling on
+  public endpoints (unrestricted resource consumption), and data-layer
+  authorization — row-level / per-tenant isolation, not just a route-level
+  login check.
 - **Performance, infra & scale** — hot paths, caching opportunities,
   redundant work; Cost/FinOps (inefficient resources, token bloat, 'what bankrupts you'); and what breaks first under growth (N+1 queries, missing
   indexes, unbounded queues, all-in-memory processing, single points of
@@ -53,7 +56,9 @@ of roles — that don't apply, but the Critic reviews everything.
 - **Reliability (operator + QA)** — can someone resume this cold? failure
   modes, logging, doc drift, onboarding time; what validates outputs today,
   where would a silent regression hide, which ONE test/gate would catch the
-  most damage (name the specific risk and the specific check).
+  most damage (name the specific risk and the specific check). Beyond the
+  happy path: are external failures (third-party timeouts, failed writes)
+  handled, or do they fail silently?
 
 ### Product panel
 
