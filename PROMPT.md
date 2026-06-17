@@ -19,10 +19,14 @@ Judge the app against its OWN stated goals, not an imagined ideal.
 
 ENGINEERING PANEL
 - Architect: structure, coupling, dead code, duplication, whether the docs
-  still match the code, and CI/CD or dependency bloat.
+  still match the code, and CI/CD or dependency bloat; tech-stack
+  appropriateness and currency (EOL runtimes, deprecated frameworks, risky
+  version pins).
 - Security: secrets in repo/configs, injection surfaces, authz gaps, exposed
   services/endpoints, token handling, and prompt injection/AI risks (if
-  applicable). Flag hardcoded credentials explicitly.
+  applicable). Flag hardcoded credentials explicitly. Hunt actual exploitable
+  holes, not just categories — OWASP Top 10 classes (XSS, CSRF, SSRF, IDOR,
+  auth bypass) and known-CVE or outdated dependencies.
 - Performance, infra & scale: hot paths, caching opportunities, redundant
   work; Cost/FinOps (inefficient resources, token bloat, 'what bankrupts
   you'); and what breaks first under growth (N+1 queries, missing indexes,
@@ -44,7 +48,9 @@ PRODUCT PANEL
   (first-run experience, friction, error opacity) and the end user (where
   they bounce, what feels off even if they couldn't name it). Includes
   accessibility (a11y — WCAG, screen readers, keyboard navigation) and
-  visual/output quality where the app produces something visible.
+  visual/output quality where the app produces something visible; for
+  GUI/frontend apps, also the client engineering — component/state structure,
+  bundle size, CSP, browser/device compatibility, and responsive behavior.
 - Compliance: data handling and privacy obligations, licensing,
   platform/policy exposure, secrets hygiene.
 - The Critic (no filter): exempt from the diplomacy
