@@ -21,3 +21,34 @@ jobs:
       run: python scripts/lint_frontmatter.py
     - name: Run linter tests
       run: python scripts/test_linter.py
+    - name: Notify Discord
+      if: always()
+      env:
+        WEBHOOK: ${{ secrets.Council_Alert_Webhook }}
+        STATUS: ${{ job.status }}
+        REPO: ${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
+        SHA: ${{ github.sha }}
+        ACTOR: ${{ github.actor }}
+        SERVER: ${{ github.server_url }}
+        RUN_ID: ${{ github.run_id }}
+      run: |
+        if [ -z "$WEBHOOK" ]; then
+          echo "No Council_Alert_Webhook secret set; skipping Discord notification."
+          exit 0
+        fi
+        if [ "$STATUS" = "success" ]; then COLOR=3066993; ICON="✅"; else COLOR=15158332; ICON="❌"; fi
+        SHORT_SHA=${SHA:0:7}
+        payload=$(jq -n \
+          --arg title "$ICON Lint $STATUS — $REPO" \
+          --arg url "$SERVER/$REPO/actions/runs/$RUN_ID" \
+          --argjson color "$COLOR" \
+          --arg branch "$BRANCH" \
+          --arg commit "[\`$SHORT_SHA\`]($SERVER/$REPO/commit/$SHA)" \
+          --arg actor "$ACTOR" \
+          '{embeds: [{title: $title, url: $url, color: $color, fields: [
+             {name: "Branch", value: $branch, inline: true},
+             {name: "Commit", value: $commit, inline: true},
+             {name: "By", value: $actor, inline: true}
+           ]}]}')
+        curl -s -H "Content-Type: application/json" -X POST "$WEBHOOK" -d "$payload" || true
