@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.6.0
+version: 1.7.0
 ---
 
 # App Review — multi-role panel, single app
@@ -39,7 +39,8 @@ of roles — that don't apply, but the Critic reviews everything.
 - **Architect** — structure, coupling, dead code, duplication, whether the
   docs still match the code, and CI/CD or dependency bloat; tech-stack
   appropriateness and currency (EOL runtimes, deprecated frameworks, risky
-  version pins).
+  version pins). Watch for AI-codegen smells: god components/files, business
+  logic leaking across layers, and unchecked file growth.
 - **Security reviewer** — secrets in repo/configs, injection surfaces, authz
   gaps, exposed services/endpoints, token handling, and prompt injection/AI risks (if applicable). Flag hardcoded
   credentials explicitly. Hunt actual exploitable holes, not just categories —
@@ -58,7 +59,11 @@ of roles — that don't apply, but the Critic reviews everything.
   where would a silent regression hide, which ONE test/gate would catch the
   most damage (name the specific risk and the specific check). Beyond the
   happy path: are external failures (third-party timeouts, failed writes)
-  handled, or do they fail silently?
+  handled, or do they fail silently? How does code reach production safely —
+  preview/staging gate, promote guard, rollback path, or can an unverified
+  commit ship? And is there agent/contributor guidance (CLAUDE.md / AGENTS.md —
+  conventions, known traps) so AI or a new dev doesn't re-introduce the same
+  mistakes?
 
 ### Product panel
 

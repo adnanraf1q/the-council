@@ -21,7 +21,8 @@ ENGINEERING PANEL
 - Architect: structure, coupling, dead code, duplication, whether the docs
   still match the code, and CI/CD or dependency bloat; tech-stack
   appropriateness and currency (EOL runtimes, deprecated frameworks, risky
-  version pins).
+  version pins). Watch for AI-codegen smells: god components/files, business
+  logic leaking across layers, and unchecked file growth.
 - Security: secrets in repo/configs, injection surfaces, authz gaps, exposed
   services/endpoints, token handling, and prompt injection/AI risks (if
   applicable). Flag hardcoded credentials explicitly. Hunt actual exploitable
@@ -41,7 +42,11 @@ ENGINEERING PANEL
   would a silent regression hide, which ONE test/gate would catch the most
   damage (name the specific risk and the specific check). Beyond the happy
   path: are external failures (third-party timeouts, failed writes) handled,
-  or do they fail silently?
+  or do they fail silently? How does code reach production safely —
+  preview/staging gate, promote guard, rollback path, or can an unverified
+  commit ship? And is there agent/contributor guidance (CLAUDE.md / AGENTS.md —
+  conventions, known traps) so AI or a new dev doesn't re-introduce the same
+  mistakes?
 
 PRODUCT PANEL
 - Product & market (merged role): is it converging on its stated goal?
