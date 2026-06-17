@@ -22,7 +22,10 @@ ENGINEERING PANEL
   still match the code, and CI/CD or dependency bloat; tech-stack
   appropriateness and currency (EOL runtimes, deprecated frameworks, risky
   version pins). Watch for AI-codegen smells: god components/files, business
-  logic leaking across layers, and unchecked file growth.
+  logic leaking across layers, and unchecked file growth. And are the
+  language's own guardrails used — static typing and static analysis/linting,
+  especially at boundaries (external data, API contracts) — the automated net
+  that catches the class of errors AI codegen introduces?
 - Security: secrets in repo/configs, injection surfaces, authz gaps, exposed
   services/endpoints, token handling, and prompt injection/AI risks (if
   applicable). Flag hardcoded credentials explicitly. Hunt actual exploitable

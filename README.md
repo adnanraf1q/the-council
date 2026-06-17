@@ -105,7 +105,7 @@ A read-only review panel for one app/repo. It does not edit code — it produces
 
 | Panel | Role | Looks for |
 |---|---|---|
-| Engineering | Architect | structure, coupling, dead code, doc drift, CI/CD, dependency bloat, **tech-stack currency** (EOL/deprecated/version pins), **AI-codegen smells** (god components, business logic across layers) |
+| Engineering | Architect | structure, coupling, dead code, doc drift, CI/CD, dependency bloat, **tech-stack currency** (EOL/deprecated/version pins), **AI-codegen smells** (god components, business logic across layers), **static-analysis guardrails** (typing + lint at boundaries) |
 | Engineering | Security | secrets, injection, authz gaps, exposed surfaces, AI safety/prompt injection, **exploitable holes** (OWASP Top 10, known-CVE deps), **rate limiting** & **data-layer authz** (row-level/per-tenant isolation) |
 | Engineering | Performance, infra & scale | hot paths, caching, Cost/FinOps, and **what breaks first under growth** — with a named breaking point and rough threshold |
 | Engineering | Reliability (operator + QA) | cold-resume, failure modes, where a silent regression hides, the ONE test/gate worth adding, **error handling past the happy path** (external timeouts/failed writes), **release safety** (preview/promote/rollback), **agent guidance** (CLAUDE.md/AGENTS.md) |

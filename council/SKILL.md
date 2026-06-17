@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.7.0
+version: 1.8.0
 ---
 
 # App Review — multi-role panel, single app
@@ -40,7 +40,10 @@ of roles — that don't apply, but the Critic reviews everything.
   docs still match the code, and CI/CD or dependency bloat; tech-stack
   appropriateness and currency (EOL runtimes, deprecated frameworks, risky
   version pins). Watch for AI-codegen smells: god components/files, business
-  logic leaking across layers, and unchecked file growth.
+  logic leaking across layers, and unchecked file growth. And are the
+  language's own guardrails used — static typing and static analysis/linting,
+  especially at boundaries (external data, API contracts) — the automated net
+  that catches the class of errors AI codegen introduces?
 - **Security reviewer** — secrets in repo/configs, injection surfaces, authz
   gaps, exposed services/endpoints, token handling, and prompt injection/AI risks (if applicable). Flag hardcoded
   credentials explicitly. Hunt actual exploitable holes, not just categories —
