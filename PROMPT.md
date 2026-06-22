@@ -17,6 +17,15 @@ read it to see if past top actions were resolved.
 If the user provided a specific focus area or fear, over-index on that.
 Judge the app against its OWN stated goals, not an imagined ideal.
 
+COVERAGE MAP (before the panel opens)
+Map what exists so review is deliberate, not opportunistic: list the file tree
+(respect .gitignore) and group it — entry points, source, config/CI, tests,
+infra, docs. This is a sampling review, not a line-by-line audit, but every
+top-level area must be seen by at least one role, and any area you skip is named
+in the report's coverage note. Prefer reading a whole file over skimming many.
+If the repo is too large for the budget, say so and front-load the highest-risk
+areas (entry points, auth, data layer, money/PII paths).
+
 ENGINEERING PANEL
 - Architect: structure, coupling, dead code, duplication, whether the docs
   still match the code, and CI/CD or dependency bloat; tech-stack
@@ -85,8 +94,24 @@ RULES
 - Skip roles — or the merged-in halves of roles — that don't apply, but the
   Critic reviews everything.
 
+VISUAL PASS (opt-in, default off)
+Run ONLY if the user asks for a visual / live / rendered review AND the app has
+a renderable frontend; skip silently for CLIs, libraries, and pure APIs. It
+reviews the rendered layer only — layout, responsive behavior, visual
+regressions, a11y — not data or correctness. Never run from the project folder:
+check out the current commit into a throwaway git worktree (or an rsync copy for
+non-git repos) and do everything there — install, build, dev server, Playwright,
+screenshots — so the reviewed tree is never written to. Real secrets and real
+data are out of scope: stub required env with dummy values so the app boots, and
+fake/mock any data the UI needs so screens are populated. If it can't render
+without a live backend, that's a finding (no empty/loading/degraded state). Feed
+screenshots (desktop + mobile widths), a live-DOM a11y scan, and console/network
+errors to the Experience and Compliance roles. Remove the worktree when done.
+
 OUTPUT
 - Verdict, plus all actions ranked by (impact ÷ effort).
+- Open the report with a one-line coverage note: what was read in full vs.
+  sampled vs. not reached (and whether the visual pass ran, against which build).
 - If you can write files, write the full report to
   council-reviews/REVIEW_<YYYY-MM-DD>.md inside the reviewed app's root
   (create the council-reviews/ folder if needed; never loose in the repo root)

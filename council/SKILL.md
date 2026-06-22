@@ -1,7 +1,7 @@
 ---
 name: council
 description: Multi-role panel review of a single app/repo — engineering panel (architect, security, perf/infra/scale, reliability) + product panel (product & market, experience, compliance, no-filter critic). Read-only; writes findings to a dated REVIEW report. Use when asked to review, audit, or assess this app's quality, architecture, or readiness.
-version: 1.8.0
+version: 1.9.0
 ---
 
 # App Review — multi-role panel, single app
@@ -16,6 +16,22 @@ projects (or is not the app's root), ask which app to review before reading
 anything — do not assume the current directory is the target.
 
 Read the README and any design/architecture docs first. If a previous report exists (`council-reviews/REVIEW_*.md`, or a legacy `REVIEW_*.md` in the root), read it to see if past top actions were resolved. If the user provided a specific focus area or fear, over-index on that. Judge the app against its OWN stated goals, not an imagined ideal.
+
+## Phase 0.5 — Coverage map
+
+Before the panel opens, map what exists so review is deliberate, not
+opportunistic. List the file tree (respect `.gitignore`) and group it: entry
+points, source modules, config/CI, tests, infra/deploy, docs. Note the largest
+files and busiest directories — that's where AI-codegen god-files and coupling
+hide.
+
+This stays a sampling review, not a line-by-line audit — you will not read every
+file. But every TOP-LEVEL area must be seen by at least one role, and any area
+you deliberately skip is named in the report's coverage note, so the reader
+knows the blind spot exists. Prefer reading a whole file over skimming many;
+truncated reads are how real findings get missed. If the repo is too large for
+the context budget, say so and front-load the highest-risk areas — entry points,
+auth, data layer, money/PII paths — not whatever sorted first.
 
 ## Phase 1 — Panel review
 
@@ -88,9 +104,38 @@ of roles — that don't apply, but the Critic reviews everything.
   not saying. Must still be specific to THIS app — cruelty without evidence
   is noise.
 
+## Phase 1.5 — Visual pass (opt-in)
+
+Default OFF — the panel is read-only. Run this ONLY when the user asks for a
+visual / live / rendered review (or passes `--visual`) AND the app has a
+renderable frontend. Skip silently for CLIs, libraries, and pure APIs.
+
+This reviews the rendered layer only — layout, responsive behavior, visual
+regressions, a11y — NOT data or correctness. Never run from the project folder:
+check out the current commit into a throwaway worktree (`git worktree add`, or
+an rsync copy for non-git repos) and do everything there — `npm ci`, build, dev
+server, Playwright, screenshots — so the reviewed tree is never written to. Real
+secrets and real data are out of scope: stub any required env with dummy values
+just so the app boots, and fake/mock any data the UI needs so the screens under
+review are actually populated. If it can't render anything without a live
+backend, that's a finding — the UI has no empty / loading / degraded state to
+review. Feed what you SEE back to the Experience and Compliance roles:
+
+- Screenshots of the primary screens at desktop and mobile widths — link them in
+  the report; a rendered bug invisible in source is the whole point.
+- Accessibility scan on the live DOM (e.g. axe-core): real WCAG violations.
+- Console errors, failed network calls, and layout breakage at the breakpoints
+  the code claims to support.
+
+Remove the worktree when done; the only write back to the project is the report.
+Note that visual findings came from a live run, and against which build/commit.
+
 ## Phase 2 — Output
 
 - Verdict, plus all actions ranked by (impact ÷ effort).
+- Open the report with a one-line **coverage note**: what was read in full vs.
+  sampled vs. not reached, so a mostly-skipped review can't masquerade as
+  exhaustive. If the visual pass ran, say so and against which build/commit.
 - Write the full report to `council-reviews/REVIEW_<YYYY-MM-DD>.md` inside the
   reviewed app's root (create the `council-reviews/` folder if it doesn't
   exist) — never loose in the repo root, and never in the council's own

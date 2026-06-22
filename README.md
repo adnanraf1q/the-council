@@ -110,13 +110,15 @@ A read-only review panel for one app/repo. It does not edit code — it produces
 | Engineering | Performance, infra & scale | hot paths, caching, Cost/FinOps, and **what breaks first under growth** — with a named breaking point and rough threshold |
 | Engineering | Reliability (operator + QA) | cold-resume, failure modes, where a silent regression hides, the ONE test/gate worth adding, **error handling past the happy path** (external timeouts/failed writes), **release safety** (preview/promote/rollback), **agent guidance** (CLAUDE.md/AGENTS.md) |
 | Product | Product & market *(merged)* | convergence on stated goal, smallest step to real user feedback, competitive landscape & moat |
-| Product | Experience *(merged)* | operator journey AND end-user journey, accessibility (a11y), output/visual quality, plus **frontend engineering** (component/state, bundle, CSP, browser compat, responsive) |
+| Product | Experience *(merged)* | operator journey AND end-user journey, accessibility (a11y), output/visual quality, plus **frontend engineering** (component/state, bundle, CSP, browser compat, responsive) — fed by the opt-in `--visual` Playwright pass when enabled |
 | Product | Compliance | data handling, licensing, platform/policy exposure |
 | Product | The Critic (no filter) | one blunt paragraph saying what everyone is politely not saying |
 
 **Quality rules baked in** — these four constraints are what keep the output sharp instead of boilerplate:
 
-1. **Read-only** — review panel, not a fixer.
+1. **Read-only** — review panel, not a fixer. (The one exception is the opt-in
+   `--visual` pass, which *executes* the app for a rendered review — and even
+   then it runs from a throwaway git worktree, never the project tree.)
 2. **Evidence required** — every finding cites `file:line` or a concrete artifact.
 3. **No generic advice** — anything that could apply to any codebase is banned.
 
